@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>贷款计算器</title>
+</head>
+<body>
+
+<table class="c_table" cellspacing="1" cellpadding="0" border="0">
+    <tr><td colspan="2"  class="caltitle">按揭贷款计算器(等额本息还款/等额本金还款)</td></tr>
+    <tr>
+        <td width="40%" class="left">贷款金额</td>
+        <td width="60%" class="right"><input type="number"  id="principal" class="inputtxt" maxlength="20" value="100000"/>元</td>
+    </tr>
+    <tr>
+        <td width="40%" class="left">贷款期限</td>
+        <td width="60%" class="right"><input type="number"  id="months" class="inputtxt" maxlength="3" value="10"/>月（1-360）</td>
+    </tr>
+    <tr>
+        <td width="40%" class="left">贷款年利率</td>
+        <td width="60%" class="right"><input type="number"  id="annualInterestRate" class="inputtxt" maxlength="20" value="6"/>% </td>
+    </tr>
+    <tr>
+        <td width="40%" class="left"></td>
+        <td width="60%" class="right">
+            <input type="button" value="总还款额" id="calculate">
+            <input type="button" value="总还款额及详情" id="calculateDetail">
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2"> </td>
+    </tr>
+</table>
+
+<div id="error" style="color:red;"></div>
+    <br>
+    <table id="totalResult" class="c_table" cellspacing="1" cellpadding="0" border="0">
+        <tr>
+            <td width="20%">还款总额</td>
+            <td width="30%" id="totalRepayment"></td>
+            <td width="20%">利息总额</td>
+            <td width="30%" id="totalInterestRepayment"></td>
+        </tr>
+    </table>
+    <table id="detailResult" style="display:none" class="c_table" cellspacing="1" cellpadding="0" border="0">
+        <thead>
+        <tr>
+            <th width="10%">月份</th>
+            <th width="30%">还月供=(还本金+还利息)</th>
+            <th width="20%">还本金</th>
+            <th width="20%">还利息</th>
+            <th width="20%">待偿还本金</th>
+        </tr>
+        </thead>
+        <tbody id="tbody">
+        </tbody>
+    </table>
+
+
+
+<script>
+  function test1(){
+    document.getElementById("error").innerText='';
+    const p=document.getElementById("principal").value;
+    const m =document.getElementById("months").value;
+    const yr=document.getElementById("annualInterestRate").value;
+    fetch(`http://localhost:8080/cal?p=${p}&m=${m}&yr=${yr}`)
+            .then(resp=>resp.text())
+            .then(text=>{
+              if(isJson(text)){
+                let json=JSON.parse(text);
+                if(json.status===404||json.status===500){
+                  if(json.message){
+                    document.getElementById("error").innerText=json.message;
+                  }else {
+                    document.getElementById("error").innerText=json.error;
+                  }
+                  json=["-","-"];
+                }
+                const div=document.getElementById("totalResult");
+                document.getElementById("totalInterestRepayment").innerText=json[0];
+                document.getElementById("totalRepayment").innerText=json[1];
+              }else {
+                document.getElementById("totalRepayment").innerText=text;
+              }
+            })
+  }
+
+</script>
+
+
+</body>
+</html>
